@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>spacegame - login</title>
+		<link rel="stylesheet" href="static/css/style.css">
+	</head>
+	<body>
+		<h1>Login</h1>
+		<p>
+			<form method="post" action="/login_post">
+				<label for="username">Username</label>
+				<input type="text" name="username" id="username">
+				<br>
+				<label for="temporary">Temporary account?</label>
+				<input type="checkbox" name="temporary" id="temporary" checked="checked">
+				<br>
+				<label for="password">Password</label> (Only required if non-temporary account)
+				<input type="password" name="password" id="password">
+				<br>
+				<input type="submit">
+			</form>
+		</p>
+	</body>
+</html>
