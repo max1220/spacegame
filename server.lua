@@ -14,10 +14,9 @@ local ws_handler = class("ws_handler", turbo.websocket.WebSocketHandler)
 function ws_handler:on_message(msg)
 	local ok, data = pcall(json.decode, msg)
 	if ok then
-		local session = sessions.get_by_token(data.token)
-	
+		local session = assert(sessions.get_by_token(data.token), "Session token invalid!")
 		if ws_handlers[action] then
-			ws_handlers[action](self, data)
+			ws_handlers[action](self, data, session)
 		else
 			self:send_message(json.encode({
 				type = "error",
@@ -40,11 +39,11 @@ function login_handler:post()
     local temporary = self:get_argument("temporary")
     local token
     if temporary == "off" then
-		token = sessions.web_login(username, password)
-		local password = self:get_argument("password")
-		if not token then
-			error("Username/passwor combination wrong!")
-		end
+      token = sessions.web_login(username, password)
+      local password = self:get_argument("password")
+      if not token then
+        error("Username/passwor combination wrong!")
+      end
 	else
 		token = sessions.web_login_temporary(username)
 		if not token then
