@@ -10,7 +10,7 @@ function generate_token(len)
 		local r = math.random(1, #chars)
 		token[#token + 1] = chars:sub(r,r)
 	end
-	return string.concat(token)
+	return table.concat(token)
 end
 
 

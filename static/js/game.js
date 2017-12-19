@@ -1,4 +1,32 @@
-BABYLON.DebugLayer.InspectorURL = window.location.protocol + "//" + window.location.host + "/static/js/babylon.inspector.bundle.js";
+var debug = false
+decodeURIComponent(document.cookie).split(";").forEach(function(e,i,a) { var kv=e.split("="); console.log(kv); if (kv[0]=="debug" && kv[1]=="true") {debug = true} })
+if (debug) {
+	BABYLON.DebugLayer.InspectorURL = window.location.protocol + "//" + window.location.host + "/static/js/babylon.inspector.bundle.js";
+}
+
+var token;
+decodeURIComponent(document.cookie).split(";").forEach(function(e,i,a) { var kv=e.split("="); if (kv[0]=="token") {token=kv[1]} })
+if (!token) {
+	alert("Missing token!")
+}
+
+function send_msg(action, data) {
+	console.log('[WS] Client: ' + data.action, data)
+	var _data = {
+		token: token,
+		action: action,
+	}
+	data.keys().forEach(function(k) {
+		_data[k] = data[k]
+	})
+	con.send(JSON.stringify(_data))
+}
+
+var con = new WebSocket(((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/ws");
+
+
+
+
 
 var canvas = document.getElementById("render_canvas"); // Get the canvas element 
 var engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
@@ -61,14 +89,19 @@ var createScene = function () {
 };
 
 var scene = createScene();
-scene.debugLayer.show();
+if (debug) {
+	scene.debugLayer.show();	
+}
 
 
-var con = new WebSocket(((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/ws");
-// When the connection is open, send some data to the server
+var chunks = {}
+
+
+
 con.onopen = function () {
 	console.log('WebSocket Open');
-	con.send('Ping');
+	send_msg("get_area", {});
+
 };
 
 con.onerror = function (error) {
@@ -76,8 +109,16 @@ con.onerror = function (error) {
 };
 
 con.onmessage = function (e) {
-	console.log('Server: ' + e.data);
+	var obj = JSON.parse(e.data);
+	if (obj.type == "error") {
+		console.log('[WS] Server (error): ' + obj.msg);
+	} else {
+		console.log('[WS] Server: ' + obj);
+	}
 };
+
+
+
 
 
 
